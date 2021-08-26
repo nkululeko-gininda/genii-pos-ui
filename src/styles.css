@@ -1,1 +1,56 @@
 /* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.grid-container{
+    margin: 0px;
+}
+.table{
+    width: 100%;
+}
+.mat-tab-label {
+    width: 20%;
+}
+.full{
+    width: 100%;
+}
+.example-spacer{
+    flex: auto 1 1;
+}
+.compose-field{
+    width: 100%;
+}
+.compose-textarea{
+    height: 200px;
+}
+.span{
+    position: relative;
+    padding: 5px;
+    top: 5px;
+}
+.global-search-form{
+    width: 70%;
+    height: 50px;
+    padding: 0px;
+    background-color: #eee;
+    font-size: medium;
+    /* border: 1px solid #ccc; */
+    border-radius: 5px;
+}
+.global-search-field{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+.example-button-row{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.compose-mail-btn{
+    height: 5vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

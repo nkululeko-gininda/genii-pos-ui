@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { AuthGuardService } from './authentication/auth-guard.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +10,11 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'GeniiPosApp';
+  isAuthenticated  = false;
+  constructor(private snackBar: MatSnackBar, private route: Router, public authGuard: AuthGuardService) {
+    
+  }
+  ngOnInit(){
+    this.isAuthenticated = this.authGuard.isLoggedIn();
+  }
 }

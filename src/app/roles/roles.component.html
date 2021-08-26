@@ -1,0 +1,15 @@
+<form [formGroup]="myForm">
+	<ng-container *ngFor="let group of myForm.controls |keyvalue">
+		<div style="margin:20px;" [FormGroup]="group.value">
+			<label for="">{{group.key}} test</label>
+            <button type="button" (click)="onAddMedicine(group.value)">Add Medicine</button>
+			<div formArrayName="medicineList">
+				<div *ngFor="let item of medicineArray(group.value).controls; let i = index">
+					<label for="">Medicine row</label>
+					<input [formControlName]="i">
+          <button (click)="removeMedicine(group.value,i)">remove</button>
+      </div>
+				</div>
+			</div>
+	</ng-container>
+</form>

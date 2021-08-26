@@ -2,8 +2,26 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+import { HttpHeaders } from "@angular/common/http";
+
 export const environment = {
-  production: false
+  production: false,
+  /*nkg 
+  * WE NEED DNS CONFIG FOR HOST SERVER
+  * WE NEED TO DEPLOY API AS A SERVICE
+  * WE NEED TO LOAD ALL EXTERNAL APIs TO BE USED ON THIS SCOPE
+  * 
+  */
+  geniiposapi: 'http://192.168.1.102/api'
+};
+export const httpOptions = {
+  headers: new HttpHeaders({ 
+    'Content-Type':'application/json',
+    'Access-Control-Allow-Origin':'*',
+    'Accept':'application/json',
+    // 'Authorization':'authkey',
+    // 'userid':'1'
+  })
 };
 
 /*
