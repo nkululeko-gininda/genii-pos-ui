@@ -43,7 +43,11 @@
       <span class="example-spacer"></span>
       <button type="button" aria-label="Toggle sidenav" mat-icon-button><mat-icon>help_outline</mat-icon></button>
       <button type="button" aria-label="Toggle sidenav" mat-icon-button><mat-icon>settings</mat-icon></button>
-      <button type="button" aria-label="Toggle sidenav" mat-icon-button><mat-icon>account_circle</mat-icon></button>
+      <button type="button" aria-label="Toggle sidenav" [matMenuTriggerFor]="menu" mat-icon-button><mat-icon>account_circle</mat-icon></button>
+      <mat-menu #menu="matMenu" xPosition="before">
+        <button mat-menu-item>My Account</button>
+        <button mat-menu-item (click)="signOut()">Sign Out</button>
+      </mat-menu>
     </mat-toolbar>
     <!-- Add Content Here -->
     <router-outlet></router-outlet>

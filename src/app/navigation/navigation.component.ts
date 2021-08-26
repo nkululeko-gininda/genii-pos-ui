@@ -34,4 +34,7 @@ export class NavigationComponent implements OnInit{
     //this.dialog.open(InvoiceDetailComponent);
     //let snackbar = this.snackBar.open('New Invoice', 'Done');
   }
+  signOut(){
+    this.authGuard.logout();
+  }
 }

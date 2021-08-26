@@ -18,7 +18,7 @@ export class AuthenticationComponent implements OnInit {
             username: ['',Validators.required],
             password: ['',Validators.required]
         });
-        this.authGuardService.isLoggedOut();
+        this.authGuardService.logout();
     }
 
     public login() {
