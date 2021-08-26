@@ -10,11 +10,16 @@ import { AuthGuardService } from './authentication/auth-guard.service';
 })
 export class AppComponent {
   title = 'GeniiPosApp';
+  isNotAuthenticated  = true;
   isAuthenticated  = false;
   constructor(private snackBar: MatSnackBar, private route: Router, public authGuard: AuthGuardService) {
     
   }
   ngOnInit(){
-    this.isAuthenticated = this.authGuard.isLoggedIn();
+    if(this.authGuard.isLoggedIn()){
+      this.isAuthenticated  = true;
+      this.isNotAuthenticated = false;
+    }
+      
   }
 }

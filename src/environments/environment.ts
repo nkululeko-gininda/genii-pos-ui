@@ -19,7 +19,7 @@ export const httpOptions = {
     'Content-Type':'application/json',
     'Access-Control-Allow-Origin':'*',
     'Accept':'application/json',
-    // 'Authorization':'authkey',
+    'Authorization': "" + localStorage.getItem("expires_at"),
     // 'userid':'1'
   })
 };

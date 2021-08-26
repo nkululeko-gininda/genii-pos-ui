@@ -50,7 +50,7 @@ import { ProductDetailComponent } from './products/product-detail/product-detail
 import { RoleDetailComponent } from './roles/role-detail/role-detail.component';
 import { UserDetailComponent } from './users/user-detail/user-detail.component';
 import { NavigationComponent } from './navigation/navigation.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { environment } from 'src/environments/environment';
 import { CdkTableModule } from '@angular/cdk/table';
@@ -125,6 +125,7 @@ const materialModules = [
     MatGridListModule,
     MatCardModule,
     MatMenuModule,
+    MatDialogModule,
     MatIconModule,
     MatButtonModule,
     LayoutModule,

@@ -10,7 +10,7 @@ import { UsersComponent } from './users/users.component';
 
 const routes: Routes = [
   {path:'',pathMatch: 'full' ,redirectTo:'login'},
-  {path:'login', component: AuthenticationComponent},
+  {path:'login', component: AuthenticationComponent, canActivate: [!AuthGuardService]},
   {path:'invoices', component: InvoicesComponent, canActivate: [AuthGuardService]},
   {path:'new-invoice', component: InvoiceDetailComponent, canActivate: [AuthGuardService]},
   {path:'products', component: ProductsComponent, canActivate: [AuthGuardService]},

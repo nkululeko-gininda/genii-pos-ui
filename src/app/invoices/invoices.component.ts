@@ -31,7 +31,7 @@ export class InvoicesComponent {
 
    title = 'Invoice';
 
-  constructor(private breakpointObserver: BreakpointObserver, private http: HttpClient, @Inject('AuthGuardService') authGuard: AuthGuardService) {
+  constructor(private breakpointObserver: BreakpointObserver, private http: HttpClient) {
     this.onloadInvoices();
   }
   ngOnInit(){

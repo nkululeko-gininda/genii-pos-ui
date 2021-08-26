@@ -13,7 +13,6 @@ export class AuthGuardService implements CanActivate{
   }
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     let url: string = state.url;
-
     if (this.isLoggedIn()) {
       return true;
     } else {
@@ -21,23 +20,23 @@ export class AuthGuardService implements CanActivate{
       return false;
     }
   }
-  login(username:string, password:string ) {
-    let userProfile = {
+ login(username:string, password:string ) {
+    let userProfile = 
+    {
       "id": 0,
-  "username": username,
-  "password": password,
-  "firstName": "",
-  "lastName": "",
-  "email": "",
-  "isActive": true,
-  "roleId": 0,
-  "createdDate": new Date().toDateString
-    }
+      "username": username,
+      "password": password,
+      "firstName": "string",
+      "lastName": "string",
+      "email": "string",
+      "isActive": true,
+      "roleId": 0,
+      "createdDate": "2021-08-26T16:18:53.701Z"
+    };
     let options = {headers:httpOptions.headers};
         
-    return this.http.post(environment.geniiposapi +'/Users/authenticate', JSON.stringify(userProfile), options)
+    this.http.post(environment.geniiposapi +'/users/authenticate', userProfile, options)
     .subscribe((authGuardResponse:any) => {
-        console.log(authGuardResponse);
         if (authGuardResponse !=null) {
           this.setSession(authGuardResponse) //token here is stored in a local storage
         }
@@ -48,10 +47,13 @@ export class AuthGuardService implements CanActivate{
     );   
   }
   private setSession(authResult:any) {
-    const expiresAt = moment().add(12,'hour');
-
-    localStorage.setItem('id_token', authResult.idToken);
-    localStorage.setItem("expires_at", JSON.stringify(expiresAt.valueOf()) );
+    const expiresAt = moment().add(2,'days');
+    localStorage.setItem('id_token', authResult);
+    localStorage.setItem("expires_at", JSON.stringify(expiresAt.valueOf()));
+    if(this.isLoggedIn()){
+      this.router.navigateByUrl('/invoices');
+      
+    }
 }          
 
 logout() {
@@ -60,7 +62,13 @@ logout() {
 }
 
 public isLoggedIn():boolean {
-    return moment().isBefore(this.getExpiration());
+  if(moment().valueOf() < this.getExpiration()){
+    return true;
+  }else{
+    return false
+  }
+//    var expire = .isSameOrBefore(this.getExpiration());
+  //  return expire;
 }
 
 isLoggedOut() {
@@ -70,6 +78,6 @@ isLoggedOut() {
 getExpiration() {
     const expiration = localStorage.getItem("expires_at");
     const expiresAt = JSON.parse(JSON.stringify(expiration));
-    return moment(expiresAt);
+    return expiresAt;
 }    
 }

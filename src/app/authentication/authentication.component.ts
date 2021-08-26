@@ -18,17 +18,15 @@ export class AuthenticationComponent implements OnInit {
             username: ['',Validators.required],
             password: ['',Validators.required]
         });
+        this.authGuardService.isLoggedOut();
     }
 
     public login() {
         const val = this.form.value;
 
         if (val.username && val.password) {
-          let response = this.authGuardService.login(val.username, val.password)
-            if(response !== null){
-              this.router.navigate(['/invoices']);
-              
-            }
+          this.authGuardService.login(val.username, val.password)
+           
         }
     }
 
