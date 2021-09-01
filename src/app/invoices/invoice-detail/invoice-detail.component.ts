@@ -1,10 +1,10 @@
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Inject, ViewChild } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { HttpClient } from '@angular/common/http';
 import { Invoice } from '../Invoice.Model';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { environment } from 'src/environments/environment';
+import { environment, httpOptions } from 'src/environments/environment';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,6 +12,8 @@ import { User } from 'src/app/users/User.Model';
 import { RolesComponent } from 'src/app/roles/roles.component';
 import { Product } from 'src/app/products/Product.Model';
 import { InvoiceItem } from './InvoiceItem.Model';
+import { InvoiceItemComponent } from '../invoice-item/invoice-item.component';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 
 @Component({
@@ -19,9 +21,9 @@ import { InvoiceItem } from './InvoiceItem.Model';
   templateUrl: './invoice-detail.component.html',
   styleUrls: ['./invoice-detail.component.css']
 })
-export class InvoiceDetailComponent {
+export class InvoiceDetailComponent{
   displayedColumns: string[] = ['Item Name', 'Quantity', 'Price', 'Amount', 'Action'];
-  dataSource: any;
+  dataSource = new MatTableDataSource<InvoiceItem>();
   products: any;
   product:any;
   @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
@@ -41,13 +43,17 @@ export class InvoiceDetailComponent {
   newInvoiceItem: InvoiceItem = new InvoiceItem;
   productsList!: any[];
   invoiceItemsList: InvoiceItem[]=[];
-  constructor(private breakpointObserver: BreakpointObserver, private snackBar: MatSnackBar, private http: HttpClient) {
+  @ViewChild(InvoiceItemComponent) invoiceItemComponent!:InvoiceItemComponent;
+  constructor(private breakpointObserver: BreakpointObserver, 
+    private snackBar: MatSnackBar, 
+    private http: HttpClient, 
+    public dialog: MatDialog) {
   this.onloadInvoices();
   this.onloadProducts();
   }
   onloadInvoices(){
     this.invoiceItemsList.push(this.newInvoiceItem);
-      this.dataSource = new MatTableDataSource(this.invoiceItemsList);
+      this.dataSource.data =this.invoiceItemsList;
       setTimeout(() => this.dataSource.paginator = this.paginator);
       setTimeout(() => this.dataSource.sort = this.sort);
   }
@@ -63,11 +69,13 @@ export class InvoiceDetailComponent {
     // this.dataSource = new MatTableDataSource(this.invoiceItemsList);
     //   setTimeout(() => this.dataSource.paginator = this.paginator);
     //   setTimeout(() => this.dataSource.sort = this.sort);
-    this.invoiceItemsList.push(this.newInvoiceItem);
-    this.dataSource = new MatTableDataSource(this.invoiceItemsList);
+    //this.onloadInvoices();
+    this.openModalDialog();
   }
+
   onloadProducts(){
-    this.http.get(environment.geniiposapi + "/products").subscribe((products: any)=>{
+    let options = {headers:httpOptions.headers};
+    this.http.get(environment.geniiposapi +'/products', options).subscribe((products: any)=>{
       this.productsList = products; 
       this.products = new MatTableDataSource(products);
       setTimeout(() => this.products.paginator = this.paginator);
@@ -124,41 +132,67 @@ export class InvoiceDetailComponent {
       this.invoiceItemsList[index] = invoiceItemData
    }
   }
+  openModalDialog(){
+    this.dialog.open(InvoiceItemComponent, {
+      width: '80%',
+      data: null
+    });
+    
+  }
   onSelectedRow(row:any){
     console.log("RUN PROCESS::: DATA SOURCE");
     console.log("===========================");
     console.log(this.invoiceItemsList);
     console.log("===========================");
   }
-  createFullInvoice = async () => {
-    
-    const response =  await fetch(environment.geniiposapi + "/users");
-    let userProfile = await response.json();
+  createFullInvoice(){
+    let userProfile:any;
     let userId: any;
-    
-      userProfile.forEach((profile:any) =>{
-        if(profile.id===1){
-          
-          userId = profile.id;
-          userProfile = profile;
-          if(userProfile.role===null){
-            this.http.get(environment.geniiposapi + "/roles/" + userProfile.roleId).subscribe((role: any)=>{
-              userProfile.role = role;
-            });
-          }
-        }
-      });
 
-    const responseInvoiceStatus =  await fetch(environment.geniiposapi + "/invoiceStatus");
-    let invoiceStatus = await responseInvoiceStatus.json();
-    let statusId: any;
-       
-        invoiceStatus.forEach((profile:any) =>{
+    let options = {headers:httpOptions.headers};
+    
+    this.http.get(environment.geniiposapi +'/users', options)
+    .subscribe((response:any) => {
+        console.log(response);
+        userProfile = response;
+        userProfile.forEach((profile:any) =>{
           if(profile.id===1){
             
+            userId = profile.id;
+            userProfile = profile;
+            if(userProfile.role===null){
+              this.http.get(environment.geniiposapi + "/roles/" + userProfile.roleId, options).subscribe((role: any)=>{
+                userProfile.role = role;
+              });
+            }
+          }
+        });
+      },
+      (err) => {
+        console.log(err);
+      }
+    );
+    
+     
+
+    let invoiceStatus:any;
+    let statusId: any;
+
+    this.http.get(environment.geniiposapi +'/invoiceStatus', options)
+    .subscribe((response:any) => {
+        console.log(response);
+        invoiceStatus = response;
+        invoiceStatus.forEach((profile:any) =>{
+          if(profile.id===1){
             statusId=profile.id;
             invoiceStatus = profile;
           }});
+      },
+      (err) => {
+        console.log(err);
+      }
+    );
+       
      console.log("User Profile: " + userProfile.role);
      console.log("Invoice Status: " + invoiceStatus);
      
@@ -172,16 +206,17 @@ export class InvoiceDetailComponent {
     
     let invoiceData:any;
     //this.http.post(environment.geniiposapi + "/invoices", {invoice});
-    let persistanceUnit =await fetch(environment.geniiposapi + "/invoices", {
-      method: 'POST',
-      body: JSON.stringify(invoice),
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
+   
+    this.http.post(environment.geniiposapi +'/invoices', JSON.stringify(invoice), options)
+    .subscribe((response:any) => {
+        console.log(response);
+        invoiceData = response;
+      },
+      (err) => {
+        console.log(err);
       }
-    });
-    invoiceData = await persistanceUnit.json();
-    console.log("Invoice Data: " + invoiceData);
+    );
+ console.log("Invoice Data: " + invoiceData);
     let invoiceItem = {
       InvoiceId: invoiceData.id,
       ProductId: 1,
@@ -190,17 +225,19 @@ export class InvoiceDetailComponent {
     }
     let invoiceItemData:any;
     
-    persistanceUnit = await fetch(environment.geniiposapi + "/invoiceitems", {
-      method: 'POST',
-      body: JSON.stringify(invoiceItem),
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      }
-    });
-    invoiceItemData = await persistanceUnit.json();
     
+    this.http.post(environment.geniiposapi +'/invoiceitems', JSON.stringify(invoiceItem), options)
+    .subscribe((response:any) => {
+        console.log(response);
+        invoiceItemData = response;
+      },
+      (err) => {
+        console.log(err);
+      }
+    );
     console.log("Invoice Item Data: " + invoiceItemData);
+    let snackbar = this.snackBar.open('Invoice created successfully', 'Done');
+  
     
   }
   deleteItem(item:any){

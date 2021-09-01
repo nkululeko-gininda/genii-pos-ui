@@ -4,6 +4,7 @@ import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
 import { FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment, httpOptions } from 'src/environments/environment';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
@@ -30,7 +31,7 @@ export class ProductDetailComponent {
     })
   );
 
-  constructor(private breakpointObserver: BreakpointObserver, private http: HttpClient) {}
+  constructor(private breakpointObserver: BreakpointObserver, private http: HttpClient, private snackBar:MatSnackBar) {}
   saveProduct(){
     var product = {
             "id": 0,
@@ -38,7 +39,7 @@ export class ProductDetailComponent {
             "stock": this.productDetailsForm.controls['stock'].value,
             "price": this.productDetailsForm.controls['price'].value,
             "isActive": true,
-            "createdDate": "2021-08-26T20:04:19.415Z"
+            "createdDate": new Date()
         };
     
     let options = {headers:httpOptions.headers};
@@ -46,6 +47,7 @@ export class ProductDetailComponent {
     this.http.post(environment.geniiposapi +'/products', product, options)
     .subscribe((response:any) => {
         console.log(response);
+        let alert = this.snackBar.open("Product added successfully", "Done");
       },
       (err) => {
         console.log(err);

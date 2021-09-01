@@ -9,6 +9,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
 import { HttpClient } from '@angular/common/http';
 import { environment, httpOptions } from 'src/environments/environment';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Component({
@@ -30,24 +31,23 @@ export class ProductsComponent implements OnInit{
   
    this.getAllProducts();
   }
-  constructor(private breakpointObserver: BreakpointObserver, public dialog: MatDialog, private http: HttpClient) { }
+  constructor(private breakpointObserver: BreakpointObserver, public dialog: MatDialog, private http: HttpClient, private snackBar:MatSnackBar) { }
   openModalDialog(){
     this.dialog.open(ProductDetailComponent, {
       width: '80%',
       data: null
     });
+    this.getAllProducts();
   }
   getAllProducts(){
-    //httpOptions.headers.append('Authorization',"Bearer " + localStorage.getItem("id_token"));
-    let options = {headers:httpOptions.headers};
+ let options = {headers:httpOptions.headers};
     this.http.get(environment.geniiposapi +'/products', options)
     .subscribe((response:any) => {
         this.data  = response;
         this.dataSource = new MatTableDataSource(this.data);
         setTimeout(() => this.dataSource.paginator = this.paginator);
         setTimeout(() => this.dataSource.sort = this.sort);
-        console.log(this.data);
-      },
+        },
       (err) => {
         console.log(err);
       }

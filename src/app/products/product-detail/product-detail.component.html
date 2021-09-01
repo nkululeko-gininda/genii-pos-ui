@@ -9,7 +9,7 @@
   
   <mat-grid-list cols="4" rowHeight="350px">
     <mat-grid-tile *ngFor="let card of cards | async" [colspan]="card.cols" [rowspan]="card.rows">
-        <form [formGroup]="productDetailsForm" (ngSubmit)="saveProduct()">
+        <form [formGroup]="productDetailsForm" >
             <mat-form-field style="width: 50%; padding: 10px;">
               <mat-label>Product Name</mat-label>
               <input matInput type="text" required formControlName="productName"/>

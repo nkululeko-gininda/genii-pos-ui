@@ -48,17 +48,17 @@ export class AuthGuardService implements CanActivate{
   }
   private setSession(authResult:any) {
     const expiresAt = moment().add(2,'days');
-    localStorage.setItem('id_token', authResult);
-    localStorage.setItem("expires_at", JSON.stringify(expiresAt.valueOf()));
+    sessionStorage.setItem('id_token', authResult);
+    sessionStorage.setItem("expires_at", JSON.stringify(expiresAt.valueOf()));
     if(this.isLoggedIn()){
-      this.router.navigateByUrl('/invoices');
+      this.router.navigate(['/invoices']);
       
     }
 }          
 
 logout() {
-    localStorage.removeItem("id_token");
-    localStorage.removeItem("expires_at");
+  sessionStorage.removeItem("id_token");
+  sessionStorage.removeItem("expires_at");
 }
 
 public isLoggedIn():boolean {
@@ -76,7 +76,7 @@ isLoggedOut() {
 }
 
 getExpiration() {
-    const expiration = localStorage.getItem("expires_at");
+    const expiration = sessionStorage.getItem("expires_at");
     const expiresAt = JSON.parse(JSON.stringify(expiration));
     return expiresAt;
 }    

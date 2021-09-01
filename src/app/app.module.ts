@@ -56,6 +56,7 @@ import { environment } from 'src/environments/environment';
 import { CdkTableModule } from '@angular/cdk/table';
 import { AuthenticationComponent } from './authentication/authentication.component';
 import { AuthGuardService } from './authentication/auth-guard.service';
+import { InvoiceItemComponent } from './invoices/invoice-item/invoice-item.component';
 
 const materialModules = [
   MatButtonModule,
@@ -115,7 +116,8 @@ const materialModules = [
     RoleDetailComponent,
     UserDetailComponent,
     NavigationComponent,
-    AuthenticationComponent
+    AuthenticationComponent,
+    InvoiceItemComponent
   ],
   imports: [
     BrowserModule,
@@ -138,6 +140,7 @@ const materialModules = [
   ],
   entryComponents:[
     InvoiceDetailComponent,
+    InvoiceItemComponent,
     ProductDetailComponent,
     RoleDetailComponent,
     UserDetailComponent

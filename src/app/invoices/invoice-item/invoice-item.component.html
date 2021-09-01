@@ -1,0 +1,39 @@
+<div >
+    <mat-toolbar style="background-color: #fff; border-bottom: 1px solid #eee; height: 40px;">
+      <h1 class="mat-h1">Product Details</h1>
+      <span class="example-spacer"></span> 
+      <button mat-icon-button aria-label="Toggle menu" (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+      </mat-toolbar>
+    
+    <mat-grid-list cols="4" rowHeight="350px">
+      <mat-grid-tile  *ngFor="let card of cards | async" [colspan]="card.cols" [rowspan]="card.rows">
+          <form [formGroup]="productDetailsForm" >
+              <mat-form-field style="width: 50%; padding: 10px;">
+                <mat-select formControlName="InvoiceItem" (selectionChange)="loadItemData()" >
+                    <mat-option [value]="">Select Item</mat-option>
+                    <mat-option [value]="item" *ngFor="let item of productsList">{{item.name}}</mat-option>
+                  </mat-select>
+              </mat-form-field>
+              <mat-form-field style="width: 50%; padding: 10px;">
+                <mat-label>Quantity</mat-label>
+                <input matInput formControlName="Quantity" type="number" (input)="calculateItemAmount()" required/>
+            </mat-form-field>
+              <mat-form-field style="width: 50%; padding: 10px;">
+                <mat-label>Price</mat-label>
+                <input matInput formControlName="Price" type="number" readonly required/>
+            </mat-form-field>
+            <mat-form-field style="width: 50%; padding: 10px;">
+                <mat-label>Amount</mat-label>
+                <input matInput formControlName="Amount" type="number" readonly required/>
+          </mat-form-field>
+              <p>
+              <button mat-button type="submit" (click)="saveProduct()">Submit</button>
+              <button mat-button>Cancel</button>
+              </p>
+            </form>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </div>
+  
