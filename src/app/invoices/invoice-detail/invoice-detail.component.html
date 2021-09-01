@@ -6,44 +6,35 @@
 </p>
 <div class="modal-content" style="height: 90%; width: 100%;">
 <div class="row">
-  <Form class="col s12" [formGroup]="invoiceFormGroup" (ngSubmit)="createDraftInvoice()">
     <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8"  style="width: 100%">
         <ng-container matColumnDef="Item Name">
             <th mat-header-cell *matHeaderCellDef>Item Name</th>
             <td mat-cell *matCellDef="let element; let i = index;">
-              <mat-select formControlName="InvoiceItem" (selectionChange)="loadItemData(element, i)" [(ngModel)]="element.product">
-                <mat-option [value]="">Select Item</mat-option>
-                <mat-option [value]="item" *ngFor="let item of productsList">{{item.name}}</mat-option>
-              </mat-select>
+              {{element.Product.Name}}
             </td>
         </ng-container>
         <ng-container matColumnDef="Quantity">
           <th mat-header-cell *matHeaderCellDef>Quantity</th>
           <td mat-cell *matCellDef="let element; let i = index;">
-            <mat-form-field >
-              <input matInput formControlName="Quantity" type="number" (input)="calculateItemAmount(element, i)" [(ngModel)]="element.quantity"required/>
-            </mat-form-field>
-          </td>
+            {{element.Quantity}}
+            </td>
       </ng-container>
       <ng-container matColumnDef="Price">
         <th mat-header-cell *matHeaderCellDef>Price</th>
         <td mat-cell *matCellDef="let element;">
-          <mat-form-field >
-            <input matInput formControlName="Price" type="number" [(ngModel)]="element.price" readonly required/>
-          </mat-form-field>
+          {{element.Product.Price}}
         </td>
       </ng-container>
       <ng-container matColumnDef="Amount">
         <th mat-header-cell *matHeaderCellDef>Amount</th>
         <td mat-cell *matCellDef="let element;">
-          <mat-form-field >
-            <input matInput formControlName="Amount" type="number" [(ngModel)]="element.amount" readonly required/>
-          </mat-form-field>
+          {{element.Amount}}
         </td>
       </ng-container>
       <ng-container matColumnDef="Action">
         <th mat-header-cell *matHeaderCellDef>Action</th>
-        <td mat-cell *matCellDef="let element;">
+        <td mat-cell *matCellDef="let element; let i = index;">
+          <button mat-button (click)="editItem(element, i)"><mat-icon >edit</mat-icon></button>
           <button mat-button color="warn" (click)="deleteItem(element)"><mat-icon >delete</mat-icon></button>
         </td>
       </ng-container>
@@ -51,11 +42,27 @@
      <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="onSelectedRow(row)"></tr>
      
       </table>
-  </Form>
-</div>
-<p>
-<button mat-raised-button color="primary" class="btn" (click)="addNewItem()">Add Item</button>
-<button mat-raised-button color="primary" class="btn" (click)="createFullInvoice()">save Draft</button>
-</p>
+      <h3>Invoice Total: </h3>
+      <table mat-table [dataSource]="invoiceTotal" class="mat-elevation-z8" style="width: 100%">
+        <ng-container matColumnDef="SubTotal">
+           <th mat-header-cell *matHeaderCellDef>SubTotal</th>
+         <td mat-cell *matCellDef="let element"> {{element.subtotal}} </td>
+         </ng-container>
+         <ng-container matColumnDef="VAT">
+           <th mat-header-cell *matHeaderCellDef>VAT (15%) </th>
+         <td mat-cell *matCellDef="let element"> {{element.vat}} </td>
+         </ng-container>
+         <ng-container matColumnDef="Total">
+           <th mat-header-cell *matHeaderCellDef>Total </th>
+         <td mat-cell *matCellDef="let element"> {{element.total}} </td>
+         </ng-container>
+       <tr mat-header-row *matHeaderRowDef="invoiceTotalColumns;"></tr>
+       <tr mat-row *matRowDef="let row; columns: invoiceTotalColumns;" (click)="onSelectedRow(row)"></tr>
+       </table>
+    </div>
+  <p>
+    <button mat-raised-button color="primary" class="btn" (click)="addNewItem()">Add Item</button>
+    <button mat-raised-button color="primary" class="btn" (click)="createFullInvoice()">save Draft</button>
+  </p>
 </div>
 </div>

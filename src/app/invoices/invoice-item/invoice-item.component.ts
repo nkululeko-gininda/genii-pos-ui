@@ -11,6 +11,7 @@ import { map } from 'rxjs/operators';
 import { RolesComponent } from 'src/app/roles/roles.component';
 import { environment, httpOptions } from 'src/environments/environment';
 import { InvoiceItem } from '../invoice-detail/InvoiceItem.Model';
+import { InvoiceItemService } from '../invoice-item.service';
 import { Invoice } from '../Invoice.Model';
 
 @Component({
@@ -62,8 +63,8 @@ export class InvoiceItemComponent implements OnInit {
   invoiceItemsList: InvoiceItem[]=[];
   
   constructor(private breakpointObserver: BreakpointObserver, private snackBar: MatSnackBar,
-  private http: HttpClient,private dialogRef: MatDialogRef<InvoiceItemComponent>, @Inject(MAT_DIALOG_DATA) 
-  public data:any) { }
+  private http: HttpClient,private dialogRef: MatDialogRef<InvoiceItemComponent>, 
+  public invoiceItemService: InvoiceItemService) { }
 close(){
   this.dialogRef.close({ data: this.invoiceItemsList })
 }
@@ -127,14 +128,14 @@ close(){
       Price: element.price,
       Amount:itemTotal 
     }
-    var index = this.invoiceItemsList.findIndex((item: any) => item.Product===element);
-    if(index > -1){
-      this.invoiceItemsList[index] = invoiceItemData;
-    }else{
-      this.invoiceItemsList.push(invoiceItemData);
-    }
+      this.invoiceItemService.setInvoiceItem(invoiceItemData);
     console.log("RUN PROCESS::: ADD ITEM");
     console.log("===========================");
+    this.dialogRef.close();
+    
+  }
+  onCancel(){
+    this.dialogRef.close();
   }
 
 }

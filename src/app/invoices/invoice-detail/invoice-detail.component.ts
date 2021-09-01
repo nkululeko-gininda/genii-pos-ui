@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Inject, Input, ViewChild } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { HttpClient } from '@angular/common/http';
 import { Invoice } from '../Invoice.Model';
@@ -14,6 +14,7 @@ import { Product } from 'src/app/products/Product.Model';
 import { InvoiceItem } from './InvoiceItem.Model';
 import { InvoiceItemComponent } from '../invoice-item/invoice-item.component';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { InvoiceItemService } from '../invoice-item.service';
 
 
 @Component({
@@ -23,7 +24,9 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 })
 export class InvoiceDetailComponent{
   displayedColumns: string[] = ['Item Name', 'Quantity', 'Price', 'Amount', 'Action'];
+  invoiceTotalColumns: string[] = ['SubTotal', 'VAT', 'Total'];
   dataSource = new MatTableDataSource<InvoiceItem>();
+  invoiceTotal!: any[];
   products: any;
   product:any;
   @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
@@ -47,23 +50,18 @@ export class InvoiceDetailComponent{
   constructor(private breakpointObserver: BreakpointObserver, 
     private snackBar: MatSnackBar, 
     private http: HttpClient, 
-    public dialog: MatDialog) {
+    public dialog: MatDialog,
+    public invoiceItemService: InvoiceItemService) {
   this.onloadInvoices();
   this.onloadProducts();
   }
   onloadInvoices(){
-    this.invoiceItemsList.push(this.newInvoiceItem);
+    // this.invoiceItemsList.push(this.newInvoiceItem);
+    this.invoiceItemsList = this.invoiceItemService.getInvoiceItem();
       this.dataSource.data =this.invoiceItemsList;
       setTimeout(() => this.dataSource.paginator = this.paginator);
       setTimeout(() => this.dataSource.sort = this.sort);
-  }
-  getInvoiceItemFormItem(){
-    return this.formBuilder.group({
-      InvoiceItem: [''],
-      Quantity: [''],
-      Price: [''],
-      Amount: [''],
-    });
+      this.calculateItemAmount();
   }
   addNewItem(){ 
     // this.dataSource = new MatTableDataSource(this.invoiceItemsList);
@@ -88,8 +86,9 @@ export class InvoiceDetailComponent{
     let snackbar = this.snackBar.open('Creating invoice', 'Done');
   
   }
+  editItem(element: any, index:any){
+  }
   loadItemData(element: any, index:any){
-
     console.log("RUN PROCESS::: LOAD PRODUCT DATA");
     console.log("===========================");
     element.price = element.product.price;
@@ -110,34 +109,29 @@ export class InvoiceDetailComponent{
         this.invoiceItemsList[index] = invoiceItemData
      }
   }
-  calculateItemAmount(element:any, index:any){
+  calculateItemAmount(){
     console.log(this.invoiceItemsList);
     console.log("RUN PROCESS::: CALCULATE PRODUCT AMOUNT");
     console.log("===========================");
-  
-    let quantity = element.quantity;
-    let itemTotal = quantity* element.product.price;
-    //this.invoiceFormGroup.get('Amount')?.setValue(itemTotal);
-    element.amount = itemTotal;
-    let invoiceItemData = {
-      Invoice: this.newInvoice,
-      Product: element.product,
-      Quantity:quantity,
-      Price: element.product.price,
-      Amount:itemTotal 
-    }
-    if(this.invoiceItemsList.find((item: any) => item.Product === this.product) !==null){
-      console.log("RUN PROCESS::: ADD ITEM");
-      console.log("===========================");
-      this.invoiceItemsList[index] = invoiceItemData
-   }
+    
+  if(this.invoiceItemsList.length > 0){
+    const subtotal = this.invoiceItemsList.reduce((sum, current) => sum + current.Amount, 0);
+    var vat = subtotal * 0.15;
+    var total = subtotal + vat;
+    this.invoiceTotal.push({
+      subtotal: subtotal,
+      vat: vat,
+      total: total
+    });
+  }
   }
   openModalDialog(){
     this.dialog.open(InvoiceItemComponent, {
       width: '80%',
       data: null
+    }).afterClosed().subscribe(result=>{
+      this.onloadInvoices();
     });
-    
   }
   onSelectedRow(row:any){
     console.log("RUN PROCESS::: DATA SOURCE");
