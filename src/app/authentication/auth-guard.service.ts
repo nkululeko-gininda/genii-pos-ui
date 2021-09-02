@@ -44,6 +44,16 @@ export class AuthGuardService implements CanActivate{
       (err) => {
         console.log(err);
       }
+    );  
+    this.http.post(environment.geniiposapi +'/users/authuser', userProfile, options)
+    .subscribe((authUser:any) => {
+        if (authUser !=null) {
+          this.setSessionUser(authUser) //token here is stored in a local storage
+        }
+      },
+      (err) => {
+        console.log(err);
+      }
     );   
   }
   private setSession(authResult:any) {
@@ -54,7 +64,10 @@ export class AuthGuardService implements CanActivate{
       this.router.navigate(['/invoices']);
       
     }
-}          
+}  
+private setSessionUser(authResult:any) {
+  sessionStorage.setItem('user_id', authResult);
+}         
 
 logout() {
   sessionStorage.removeItem("id_token");

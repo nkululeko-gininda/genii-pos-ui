@@ -21,8 +21,9 @@ export interface PeriodicElement {
   styleUrls: ['./invoices.component.css']
 })
 export class InvoicesComponent {
-  displayedColumns: string[] = ['action','creator', 'status', 'time', 'total'];
-  dataSource: any;
+  options={headers:httpOptions.headers}
+  displayedColumns: string[] = ['select','creator', 'status', 'time', 'total', 'action'];
+  dataSource = new MatTableDataSource<any>();
   @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
   @ViewChild(MatSort, {static: false}) sort!: MatSort;
   
@@ -38,13 +39,17 @@ export class InvoicesComponent {
     
   }
   onloadInvoices(){
-    this.http.get(environment.geniiposapi + "/invoices").subscribe((invoices: any)=>{
-      this.dataSource = new MatTableDataSource(invoices);
+    this.http.get(environment.geniiposapi + "/invoices", this.options).subscribe((invoices: any)=>{
+    this.dataSource.data =invoices;
       setTimeout(() => this.dataSource.paginator = this.paginator);
       setTimeout(() => this.dataSource.sort = this.sort);
-      console.log(this.dataSource);
-      this.dataSource = invoices;
+   
     });
   }
-
+  editInvoice(element:any, index:any){
+    
+  }
+  deleteInvoice(element:any, index:any){
+    
+  }
 }

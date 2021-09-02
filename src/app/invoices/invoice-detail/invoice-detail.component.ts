@@ -42,6 +42,12 @@ export class InvoiceDetailComponent{
     Amount: new FormControl(),
     
   });
+  //nkg INvoice Status Variables
+  invoiceStatusFormGroup = new FormGroup({
+    InvoiceStatus: new FormControl()
+  });
+  invoiceStatusList!: any[];
+  
   /** Based on the screen size, switch from standard to one column per row */
   /** Based on the screen size, switch from standard to one column per row */
   newInvoice: Invoice = new Invoice;
@@ -56,6 +62,7 @@ export class InvoiceDetailComponent{
     public invoiceItemService: InvoiceItemService) {
   this.onloadInvoices();
   this.onloadProducts();
+  this.loadStatusData();
   }
   onloadInvoices(){
     // this.invoiceItemsList.push(this.newInvoiceItem);
@@ -66,10 +73,6 @@ export class InvoiceDetailComponent{
       this.calculateItemAmount();
   }
   addNewItem(){ 
-    // this.dataSource = new MatTableDataSource(this.invoiceItemsList);
-    //   setTimeout(() => this.dataSource.paginator = this.paginator);
-    //   setTimeout(() => this.dataSource.sort = this.sort);
-    //this.onloadInvoices();
     this.openModalDialog();
   }
 
@@ -82,6 +85,11 @@ export class InvoiceDetailComponent{
       this.products = products;
     });
   }
+  loadStatusData(){
+    this.http.get(environment.geniiposapi +'/invoiceStatus', this.options).subscribe((status: any)=>{
+      this.invoiceStatusList= status; 
+     });
+  }
   
   createDraftInvoice(){
     let snackbar = this.snackBar.open('Creating invoice', 'Done');
@@ -90,13 +98,9 @@ export class InvoiceDetailComponent{
   editItem(element: any, index:any){
   }
   loadItemData(element: any, index:any){
-    console.log("RUN PROCESS::: LOAD PRODUCT DATA");
-    console.log("===========================");
     element.price = element.product.price;
     let quantity = element.quantity;
     let itemTotal = quantity* element.product.price;
-    //this.invoiceFormGroup.get('Price')?.setValue(element.price);
-    //this.invoiceFormGroup.get('Amount')?.setValue(itemTotal); 
     element.amount = itemTotal;
     let invoiceItemData = {
       Invoice: this.newInvoice,
@@ -105,17 +109,11 @@ export class InvoiceDetailComponent{
       Amount:itemTotal 
     }
     if(this.invoiceItemsList.find((item: any) => item.Product === element.product) !==null){
-        console.log("RUN PROCESS::: ADD ITEM");
-        console.log("===========================");
         this.invoiceItemsList[index] = invoiceItemData
      }
   }
   calculateItemAmount(){
-    console.log(this.invoiceItemsList);
-    console.log("RUN PROCESS::: CALCULATE PRODUCT AMOUNT");
-    console.log("===========================");
-    
-  if(this.invoiceItemsList.length > 0){
+    if(this.invoiceItemsList.length > 0){
     const subtotal = this.invoiceItemsList.reduce((sum, current) => sum + current.Amount, 0);
     var vat = subtotal * 0.15;
     var total = subtotal + vat;
@@ -150,8 +148,8 @@ export class InvoiceDetailComponent{
     let statusId: any;
     let invoiceData:any;
  let invoice = {
-      UserId: 1,
-      StatusId: 1,
+      UserId: sessionStorage.getItem("user_id"),
+      StatusId: this.invoiceStatusFormGroup.get("InvoiceStatus")?.value,
       Total: this.invoiceTotal.total,
       CreatedDate: new Date()
     }
