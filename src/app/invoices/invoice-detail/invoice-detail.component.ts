@@ -22,12 +22,13 @@ import { InvoiceItemService } from '../invoice-item.service';
   templateUrl: './invoice-detail.component.html',
   styleUrls: ['./invoice-detail.component.css']
 })
-export class InvoiceDetailComponent{
+export class InvoiceDetailComponent{  
+  options = {headers:httpOptions.headers};
   displayedColumns: string[] = ['Item Name', 'Quantity', 'Price', 'Amount', 'Action'];
   invoiceTotalColumns: string[] = ['SubTotal', 'VAT', 'Total'];
   dataSource = new MatTableDataSource<InvoiceItem>();
   invoiceTotalDS = new MatTableDataSource<any>();
-  invoiceTotal!: any[];
+  invoiceTotal: any;
   products: any;
   product:any;
   @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
@@ -73,8 +74,7 @@ export class InvoiceDetailComponent{
   }
 
   onloadProducts(){
-    let options = {headers:httpOptions.headers};
-    this.http.get(environment.geniiposapi +'/products', options).subscribe((products: any)=>{
+    this.http.get(environment.geniiposapi +'/products', this.options).subscribe((products: any)=>{
       this.productsList = products; 
       this.products = new MatTableDataSource(products);
       setTimeout(() => this.products.paginator = this.paginator);
@@ -119,12 +119,12 @@ export class InvoiceDetailComponent{
     const subtotal = this.invoiceItemsList.reduce((sum, current) => sum + current.Amount, 0);
     var vat = subtotal * 0.15;
     var total = subtotal + vat;
-    this.invoiceTotal.push({
+    this.invoiceTotal={
       subtotal: subtotal,
       vat: vat,
       total: total
-    });
-    this.invoiceTotalDS.data =this.invoiceTotal;
+    };
+    this.invoiceTotalDS.data =[this.invoiceTotal];
       setTimeout(() => this.invoiceTotalDS.paginator = this.paginator);
       setTimeout(() => this.invoiceTotalDS.sort = this.sort);
   }
@@ -143,88 +143,43 @@ export class InvoiceDetailComponent{
     console.log(this.invoiceItemsList);
     console.log("===========================");
   }
-  createFullInvoice(){
+  async createFullInvoice(){
     let userProfile:any;
     let userId: any;
-
-    let options = {headers:httpOptions.headers};
-    
-    this.http.get(environment.geniiposapi +'/users', options)
+    let invoiceStatus:any;
+    let statusId: any;
+    let invoiceData:any;
+ let invoice = {
+      UserId: 1,
+      StatusId: 1,
+      Total: this.invoiceTotal.total,
+      CreatedDate: new Date()
+    }
+    await this.http.post(environment.geniiposapi +'/invoices', JSON.stringify(invoice), this.options)
     .subscribe((response:any) => {
-        console.log(response);
-        userProfile = response;
-        userProfile.forEach((profile:any) =>{
-          if(profile.id===1){
-            
-            userId = profile.id;
-            userProfile = profile;
-            if(userProfile.role===null){
-              this.http.get(environment.geniiposapi + "/roles/" + userProfile.roleId, options).subscribe((role: any)=>{
-                userProfile.role = role;
-              });
-            }
+        invoiceData = response;
+        this.invoiceItemsList.forEach((item:any)=>{
+          let invoiceItem = {
+            InvoiceId: invoiceData.id,
+            ProductId: item.Product.id,
+            Quantity: item.Quantity,
+            CreatedDate: new Date()
           }
+         this.registerInvoiceItem(invoiceItem);
         });
       },
       (err) => {
         console.log(err);
       }
     );
+   let snackbar = this.snackBar.open('Invoice created successfully', 'Done');
+  
     
-     
-
-    let invoiceStatus:any;
-    let statusId: any;
-
-    this.http.get(environment.geniiposapi +'/invoiceStatus', options)
-    .subscribe((response:any) => {
-        console.log(response);
-        invoiceStatus = response;
-        invoiceStatus.forEach((profile:any) =>{
-          if(profile.id===1){
-            statusId=profile.id;
-            invoiceStatus = profile;
-          }});
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
-       
-     console.log("User Profile: " + userProfile.role);
-     console.log("Invoice Status: " + invoiceStatus);
-     
-    let invoice = {
-      UserId: userId,
-      StatusId: statusId,
-      Total: this.invoiceItemsList[0].Amount,
-      CreatedDate: new Date()
-    }
-    console.log(JSON.stringify(invoice));
-    
-    let invoiceData:any;
-    //this.http.post(environment.geniiposapi + "/invoices", {invoice});
-   
-    this.http.post(environment.geniiposapi +'/invoices', JSON.stringify(invoice), options)
-    .subscribe((response:any) => {
-        console.log(response);
-        invoiceData = response;
-      },
-      (err) => {
-        console.log(err);
-      }
-    );
- console.log("Invoice Data: " + invoiceData);
-    let invoiceItem = {
-      InvoiceId: invoiceData.id,
-      ProductId: 1,
-      Quantity: this.invoiceItemsList[0].Quantity,
-      CreatedDate: new Date()
-    }
+  }
+  async registerInvoiceItem(invoiceItem: any){
     let invoiceItemData:any;
-    
-    
-    this.http.post(environment.geniiposapi +'/invoiceitems', JSON.stringify(invoiceItem), options)
+      
+    await this.http.post(environment.geniiposapi +'/invoiceitems', JSON.stringify(invoiceItem), this.options)
     .subscribe((response:any) => {
         console.log(response);
         invoiceItemData = response;
@@ -234,9 +189,7 @@ export class InvoiceDetailComponent{
       }
     );
     console.log("Invoice Item Data: " + invoiceItemData);
-    let snackbar = this.snackBar.open('Invoice created successfully', 'Done');
-  
-    
+      
   }
   deleteItem(item:any){
     console.log("RUN PROCESS::: DELETE ITEM");

@@ -6,7 +6,9 @@
 </p>
 <div class="modal-content" style="height: 90%; width: 100%;">
 <div class="row">
-    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8"  style="width: 100%">
+  <h3>Cart: </h3>
+      
+  <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8"  style="width: 100%">
         <ng-container matColumnDef="Item Name">
             <th mat-header-cell *matHeaderCellDef>Item Name</th>
             <td mat-cell *matCellDef="let element; let i = index;">
