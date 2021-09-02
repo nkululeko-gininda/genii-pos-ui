@@ -26,6 +26,7 @@ export class InvoiceDetailComponent{
   displayedColumns: string[] = ['Item Name', 'Quantity', 'Price', 'Amount', 'Action'];
   invoiceTotalColumns: string[] = ['SubTotal', 'VAT', 'Total'];
   dataSource = new MatTableDataSource<InvoiceItem>();
+  invoiceTotalDS = new MatTableDataSource<any>();
   invoiceTotal!: any[];
   products: any;
   product:any;
@@ -123,6 +124,9 @@ export class InvoiceDetailComponent{
       vat: vat,
       total: total
     });
+    this.invoiceTotalDS.data =this.invoiceTotal;
+      setTimeout(() => this.invoiceTotalDS.paginator = this.paginator);
+      setTimeout(() => this.invoiceTotalDS.sort = this.sort);
   }
   }
   openModalDialog(){
