@@ -50,6 +50,9 @@ export class InvoicesComponent {
     
   }
   deleteInvoice(element:any, index:any){
-    
+    this.http.delete(environment.geniiposapi + "/invoices/" + element.id, this.options).subscribe((response: any)=>{
+      console.log(response);
+      this.onloadInvoices();
+      });
   }
 }

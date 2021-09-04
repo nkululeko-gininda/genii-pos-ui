@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
 import { FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment, httpOptions } from 'src/environments/environment';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
@@ -30,10 +31,30 @@ export class ProductDetailComponent {
       ];
     })
   );
-
-  constructor(private breakpointObserver: BreakpointObserver, private http: HttpClient, private snackBar:MatSnackBar) {}
-  saveProduct(){
-    var product = {
+product:any;
+isEdit:boolean=false;
+  constructor(private breakpointObserver: BreakpointObserver, private http: HttpClient, private snackBar:MatSnackBar, @Inject(MAT_DIALOG_DATA) public data:any) {
+    if(data !=null){
+      this.isEdit=true
+      this.setProductValues();
+    }
+  }
+  setProductValues(){
+    let element = this.data;
+    this.productDetailsForm.controls['productName'].setValue(element.name);
+    this.productDetailsForm.controls['stock'].setValue(element.stock);
+    this.productDetailsForm.controls['price'].setValue(element.price);
+     this.product = {
+      "id": element.id,
+      "name": this.productDetailsForm.controls['productName'].value,
+      "stock": this.productDetailsForm.controls['stock'].value,
+      "price": this.productDetailsForm.controls['price'].value,
+      "isActive": true,
+      "createdDate": element.createdDate
+  };
+  }
+  newProduct(){
+    this.product = {
             "id": 0,
             "name": this.productDetailsForm.controls['productName'].value,
             "stock": this.productDetailsForm.controls['stock'].value,
@@ -41,17 +62,33 @@ export class ProductDetailComponent {
             "isActive": true,
             "createdDate": new Date()
         };
-    
-    let options = {headers:httpOptions.headers};
-    
-    this.http.post(environment.geniiposapi +'/products', product, options)
-    .subscribe((response:any) => {
-        console.log(response);
-        let alert = this.snackBar.open("Product added successfully", "Done");
-      },
-      (err) => {
-        console.log(err);
-      }
-    ); 
+  }
+  saveProduct(){
+    if(this.isEdit){
+      this.setProductValues();
+      let options = {headers:httpOptions.headers};
+      this.http.put(environment.geniiposapi +'/products/' + this.data.id, this.product, options)
+      .subscribe((response:any) => {
+          console.log(response);
+          let alert = this.snackBar.open("Product added successfully", "Done");
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    }else{
+      this.newProduct();
+      let options = {headers:httpOptions.headers};
+      this.http.post(environment.geniiposapi +'/products', this.product, options)
+      .subscribe((response:any) => {
+          console.log(response);
+          let alert = this.snackBar.open("Product added successfully", "Done");
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    }
+     
   }
 }

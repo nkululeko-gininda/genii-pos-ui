@@ -18,6 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./products.component.css']
 })
 export class ProductsComponent implements OnInit{
+  options = {headers:httpOptions.headers};
   @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
   @ViewChild(MatSort, {static: false}) sort!: MatSort;
   
@@ -40,8 +41,7 @@ export class ProductsComponent implements OnInit{
     this.getAllProducts();
   }
   getAllProducts(){
- let options = {headers:httpOptions.headers};
-    this.http.get(environment.geniiposapi +'/products', options)
+    this.http.get(environment.geniiposapi +'/products', this.options)
     .subscribe((response:any) => {
         this.data  = response;
         this.dataSource = new MatTableDataSource(this.data);
@@ -52,5 +52,19 @@ export class ProductsComponent implements OnInit{
         console.log(err);
       }
     ); 
+  }
+  editInvoice(element:any, index:any){
+    this.dialog.open(ProductDetailComponent, {
+      width: '80%',
+      data: element
+    });
+    this.getAllProducts();
+  
+  }
+  deleteInvoice(element:any, index:any){
+    this.http.delete(environment.geniiposapi + "/products/" + element.id, this.options).subscribe((response: any)=>{
+      console.log(response);
+      this.getAllProducts();
+      });
   }
 }
