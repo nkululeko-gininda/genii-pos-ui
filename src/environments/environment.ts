@@ -12,7 +12,11 @@ export const environment = {
   * WE NEED TO LOAD ALL EXTERNAL APIs TO BE USED ON THIS SCOPE
   * 
   */
-  geniiposapi: 'http://192.168.1.102/api'
+  //nkg Private Cloud Access
+  //geniiposapi: 'http://192.168.1.102/api'
+  
+  //nkg Public Cloud Access
+  geniiposapi: 'http://172.16.3.254/api'
 };
 export const httpOptions = {
   headers: new HttpHeaders({ 

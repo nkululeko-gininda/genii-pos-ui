@@ -37,8 +37,9 @@ export class ProductsComponent implements OnInit{
     this.dialog.open(ProductDetailComponent, {
       width: '80%',
       data: null
+    }).afterClosed().subscribe(result => {
+      this.getAllProducts();
     });
-    this.getAllProducts();
   }
   getAllProducts(){
     this.http.get(environment.geniiposapi +'/products', this.options)
@@ -57,9 +58,10 @@ export class ProductsComponent implements OnInit{
     this.dialog.open(ProductDetailComponent, {
       width: '80%',
       data: element
+    }).afterClosed().subscribe(result => {
+      this.getAllProducts();
     });
-    this.getAllProducts();
-  
+    
   }
   deleteInvoice(element:any, index:any){
     this.http.delete(environment.geniiposapi + "/products/" + element.id, this.options).subscribe((response: any)=>{

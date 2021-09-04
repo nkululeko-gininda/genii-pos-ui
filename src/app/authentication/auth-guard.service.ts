@@ -31,7 +31,7 @@ export class AuthGuardService implements CanActivate{
       "email": "string",
       "isActive": true,
       "roleId": 0,
-      "createdDate": "2021-08-26T16:18:53.701Z"
+      "createdDate": new Date()
     };
     let options = {headers:httpOptions.headers};
         

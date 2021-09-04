@@ -44,14 +44,6 @@ isEdit:boolean=false;
     this.productDetailsForm.controls['productName'].setValue(element.name);
     this.productDetailsForm.controls['stock'].setValue(element.stock);
     this.productDetailsForm.controls['price'].setValue(element.price);
-     this.product = {
-      "id": element.id,
-      "name": this.productDetailsForm.controls['productName'].value,
-      "stock": this.productDetailsForm.controls['stock'].value,
-      "price": this.productDetailsForm.controls['price'].value,
-      "isActive": true,
-      "createdDate": element.createdDate
-  };
   }
   newProduct(){
     this.product = {
@@ -65,9 +57,16 @@ isEdit:boolean=false;
   }
   saveProduct(){
     if(this.isEdit){
-      this.setProductValues();
+      this.product = {
+        "id": this.data.id,
+        "name": this.productDetailsForm.controls['productName'].value,
+        "stock": this.productDetailsForm.controls['stock'].value,
+        "price": this.productDetailsForm.controls['price'].value,
+        "isActive": true,
+        "createdDate": this.data.createdDate
+    };
       let options = {headers:httpOptions.headers};
-      this.http.put(environment.geniiposapi +'/products/' + this.data.id, this.product, options)
+      this.http.put(environment.geniiposapi +'/products/' + this.data.id, JSON.stringify(this.product), options)
       .subscribe((response:any) => {
           console.log(response);
           let alert = this.snackBar.open("Product added successfully", "Done");
