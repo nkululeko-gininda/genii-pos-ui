@@ -7,6 +7,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AuthGuardService } from '../authentication/auth-guard.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { InvoiceDetailComponent } from './invoice-detail/invoice-detail.component';
 
 //nkg TEMP CODE TEST ONLY
 export interface PeriodicElement {
@@ -32,8 +35,8 @@ export class InvoicesComponent {
 
    title = 'Invoice';
 
-  constructor(private breakpointObserver: BreakpointObserver, private http: HttpClient) {
-    this.onloadInvoices();
+   constructor(private breakpointObserver: BreakpointObserver, public dialog: MatDialog, private http: HttpClient, private snackBar:MatSnackBar) { 
+   this.onloadInvoices();
   }
   ngOnInit(){
     
@@ -47,6 +50,12 @@ export class InvoicesComponent {
     });
   }
   editInvoice(element:any, index:any){
+    this.dialog.open(InvoiceDetailComponent, {
+      width: '80%',
+      data: element
+    }).afterClosed().subscribe(result => {
+      this.onloadInvoices();
+    });
     
   }
   deleteInvoice(element:any, index:any){

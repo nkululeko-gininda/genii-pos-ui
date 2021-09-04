@@ -13,10 +13,10 @@ export const environment = {
   * 
   */
   //nkg Private Cloud Access
-  //geniiposapi: 'http://192.168.1.102/api'
+  geniiposapi: 'http://192.168.1.102/api'
   
   //nkg Public Cloud Access
-  geniiposapi: 'http://172.16.3.254/api'
+  //geniiposapi: 'http://172.16.3.254/api'
 };
 export const httpOptions = {
   headers: new HttpHeaders({ 

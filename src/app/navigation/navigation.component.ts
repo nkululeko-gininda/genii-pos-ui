@@ -23,16 +23,20 @@ export class NavigationComponent implements OnInit{
       shareReplay()
     );
 
-  constructor(private breakpointObserver: BreakpointObserver, private snackBar: MatSnackBar, private route: Router, public authGuard: AuthGuardService) {
+  constructor(private breakpointObserver: BreakpointObserver, public dialog: MatDialog, private snackBar: MatSnackBar, private route: Router, public authGuard: AuthGuardService) {
     
   }
   ngOnInit(){
     this.isAuthenticated = this.authGuard.isLoggedIn();
   }
   compose(){
-    this.route.navigate(['/new-invoice']);
-    //this.dialog.open(InvoiceDetailComponent);
-    //let snackbar = this.snackBar.open('New Invoice', 'Done');
+    this.dialog.open(InvoiceDetailComponent, {
+      width: '80%',
+      data: null
+    }).afterClosed().subscribe(result => {
+      this.route.navigate(['/invoices']);
+      window.location.reload();
+    });
   }
   signOut(){
     this.authGuard.logout();

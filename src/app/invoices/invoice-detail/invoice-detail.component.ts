@@ -58,16 +58,53 @@ export class InvoiceDetailComponent{
   constructor(private breakpointObserver: BreakpointObserver, 
     private snackBar: MatSnackBar, 
     private http: HttpClient, 
-    public dialog: MatDialog,
+    public dialog: MatDialog, @Inject(MAT_DIALOG_DATA) public data:any,
     public invoiceItemService: InvoiceItemService) {
   this.onloadInvoices();
   this.onloadProducts();
   this.loadStatusData();
+  if(data != null){
+    this.setInvoiceDetails();
+  }
+  }
+  setInvoiceDetails(){
+    let element = this.data;
+    this.http.get(environment.geniiposapi +'/invoiceStatus/' + element.statusId, this.options)
+    .subscribe((response:any) => {
+        this.invoiceStatusFormGroup.controls['InvoiceStatus'].setValue(response.id);
+      },
+      (err) => {
+        console.log(err);
+      }
+    );
+    this.http.get(environment.geniiposapi +'/invoiceItems/invoice/' + element.id, this.options)
+    .subscribe((response:any) => {
+      response.forEach((item:any) => {
+        this.productsList.find((product:any)=> {
+          if(product.id ==item.productId){
+            var dataItem ={
+              "Invoice": element,
+              "Product": product,
+              "Quantity":item.quantity,
+              "Amount": (item.quantity*product.price)  
+          };
+          this.invoiceItemsList.push(dataItem);
+
+          }
+         });
+     });
+        this.invoiceItemService.setInvoiceItem(this.invoiceItemsList);
+        this.onloadInvoices();
+      },
+      (err) => {
+        console.log(err);
+      }
+    );
   }
   onloadInvoices(){
     // this.invoiceItemsList.push(this.newInvoiceItem);
     this.invoiceItemsList = this.invoiceItemService.getInvoiceItem();
-      this.dataSource.data =this.invoiceItemsList;
+      this.dataSource.data = this.invoiceItemsList;
       setTimeout(() => this.dataSource.paginator = this.paginator);
       setTimeout(() => this.dataSource.sort = this.sort);
       this.calculateItemAmount();
@@ -145,11 +182,12 @@ export class InvoiceDetailComponent{
     let userProfile:any;
     let userId: any;
     let invoiceStatus:any;
-    let statusId: any;
+    let statusId = this.invoiceStatusFormGroup.get("InvoiceStatus")?.value
     let invoiceData:any;
+    
  let invoice = {
-      UserId: sessionStorage.getItem("user_id"),
-      StatusId: this.invoiceStatusFormGroup.get("InvoiceStatus")?.value,
+      UserId: Number(sessionStorage.getItem("user_id")),
+      StatusId: statusId.id,
       Total: this.invoiceTotal.total,
       CreatedDate: new Date()
     }
@@ -165,12 +203,14 @@ export class InvoiceDetailComponent{
           }
          this.registerInvoiceItem(invoiceItem);
         });
+      let snackbar = this.snackBar.open('Invoice created successfully', 'Done');
       },
       (err) => {
         console.log(err);
+        let snackbar = this.snackBar.open('Invoice could not be saved.', 'Done');
+      
       }
     );
-   let snackbar = this.snackBar.open('Invoice created successfully', 'Done');
   
     
   }

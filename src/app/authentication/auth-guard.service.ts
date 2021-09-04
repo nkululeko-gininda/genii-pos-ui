@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 import { environment, httpOptions } from 'src/environments/environment';
@@ -9,6 +9,7 @@ import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from '
   providedIn: 'root'
 })
 export class AuthGuardService implements CanActivate{
+  token:any;
   constructor(private http: HttpClient, private router: Router) {
   }
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
@@ -20,9 +21,8 @@ export class AuthGuardService implements CanActivate{
       return false;
     }
   }
- login(username:string, password:string ) {
-    let userProfile = 
-    {
+  login(username:string, password:string ) {
+    let userProfile = {
       "id": 0,
       "username": username,
       "password": password,
@@ -31,39 +31,51 @@ export class AuthGuardService implements CanActivate{
       "email": "string",
       "isActive": true,
       "roleId": 0,
-      "createdDate": new Date()
+      "createdDate": "2021-09-04T13:56:54.167Z"
     };
     let options = {headers:httpOptions.headers};
-        
-    this.http.post(environment.geniiposapi +'/users/authenticate', userProfile, options)
+     this.http.post(environment.geniiposapi +'/users/authenticate', userProfile, options)
     .subscribe((authGuardResponse:any) => {
         if (authGuardResponse !=null) {
-          this.setSession(authGuardResponse) //token here is stored in a local storage
-        }
+          this.setSession(authGuardResponse, userProfile) //token here is stored in a local storage
+          }
       },
       (err) => {
         console.log(err);
       }
-    );  
-    this.http.post(environment.geniiposapi +'/users/authuser', userProfile, options)
-    .subscribe((authUser:any) => {
-        if (authUser !=null) {
-          this.setSessionUser(authUser) //token here is stored in a local storage
-        }
-      },
-      (err) => {
-        console.log(err);
-      }
-    );   
+    ); 
+    console.log(this.token );
+    let userhttpOptions = {
+      headers: new HttpHeaders({ 
+        'Content-Type':'application/json',
+        'Access-Control-Allow-Origin':'*',
+        'Accept':'application/json',
+        'Authorization': "Bearer " + this.token 
+      })
+    };
+   
+    this.http.post(environment.geniiposapi +'/users/authuser', JSON.stringify(userProfile), userhttpOptions)
+       .subscribe((data:any) => {
+           if (data !=null) {
+             this.setSessionUser(data) //token here is stored in a local storage
+             if(this.isLoggedIn()){
+              this.router.navigate(['/invoices']); 
+              
+            }
+           }
+         },
+         (err) => {
+           console.log(err);
+         }
+       );  
+      
   }
-  private setSession(authResult:any) {
+  private setSession(authResult:any, userProfile:any) {
     const expiresAt = moment().add(2,'days');
+    this.token = authResult;
     sessionStorage.setItem('id_token', authResult);
     sessionStorage.setItem("expires_at", JSON.stringify(expiresAt.valueOf()));
-    if(this.isLoggedIn()){
-      this.router.navigate(['/invoices']);
-      
-    }
+    
 }  
 private setSessionUser(authResult:any) {
   sessionStorage.setItem('user_id', authResult);
