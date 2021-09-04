@@ -18,6 +18,7 @@ import { RoleDetailComponent } from './role-detail/role-detail.component';
   styleUrls: ['./roles.component.css']
 })
 export class RolesComponent implements OnInit{
+  options = {headers:httpOptions.headers};
   @ViewChild(MatPaginator, {static: false}) paginator!: MatPaginator;
   @ViewChild(MatSort, {static: false}) sort!: MatSort;
   
@@ -29,19 +30,19 @@ export class RolesComponent implements OnInit{
    title = 'Roles';
   ngOnInit(){
   
-   this.getAllProducts();
+   this.getAllRoles();
   }
   constructor(private breakpointObserver: BreakpointObserver, public dialog: MatDialog, private http: HttpClient, private snackBar:MatSnackBar) { }
   openModalDialog(){
     this.dialog.open(RoleDetailComponent, {
       width: '80%',
       data: null
+    }).afterClosed().subscribe(result => {
+      this.getAllRoles();
     });
-    this.getAllProducts();
   }
-  getAllProducts(){
- let options = {headers:httpOptions.headers};
-    this.http.get(environment.geniiposapi +'/roles', options)
+  getAllRoles(){
+    this.http.get(environment.geniiposapi +'/roles', this.options)
     .subscribe((response:any) => {
         this.data  = response;
         this.dataSource = new MatTableDataSource(this.data);
@@ -52,5 +53,20 @@ export class RolesComponent implements OnInit{
         console.log(err);
       }
     ); 
+  }
+  editInvoice(element:any, index:any){
+    this.dialog.open(RoleDetailComponent, {
+      width: '80%',
+      data: element
+    }).afterClosed().subscribe(result => {
+      this.getAllRoles();
+    });
+    
+  }
+  deleteInvoice(element:any, index:any){
+    this.http.delete(environment.geniiposapi + "/roles/" + element.id, this.options).subscribe((response: any)=>{
+      console.log(response);
+      this.getAllRoles();
+      });
   }
 }

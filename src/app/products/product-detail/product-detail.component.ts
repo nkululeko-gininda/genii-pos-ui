@@ -27,7 +27,7 @@ export class ProductDetailComponent {
       }
 
       return [
-        { title: 'Card 1', cols: 2, rows: 1 }
+        { title: 'Card 1', cols: 6, rows: 1 }
       ];
     })
   );
@@ -69,7 +69,7 @@ isEdit:boolean=false;
       this.http.put(environment.geniiposapi +'/products/' + this.data.id, JSON.stringify(this.product), options)
       .subscribe((response:any) => {
           console.log(response);
-          let alert = this.snackBar.open("Product added successfully", "Done");
+          let alert = this.snackBar.open("Product updated successfully", "Done");
         },
         (err) => {
           console.log(err);
